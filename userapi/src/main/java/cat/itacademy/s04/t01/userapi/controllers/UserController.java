@@ -17,7 +17,7 @@ public class UserController {
 
 
     public static List<User> getUsers() {
-        return Collections.unmodifiableList(users);
+        return users;
     }
 
     @PostMapping
