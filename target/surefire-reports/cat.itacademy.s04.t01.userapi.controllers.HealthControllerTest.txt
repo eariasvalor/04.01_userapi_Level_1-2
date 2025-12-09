@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: cat.itacademy.s04.t01.userapi.controllers.HealthControllerTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.047 s -- in cat.itacademy.s04.t01.userapi.controllers.HealthControllerTest
