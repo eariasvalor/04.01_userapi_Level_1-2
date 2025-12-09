@@ -105,7 +105,7 @@ Spring Boot:
 
 ------------------------------------------------------------------------
 
-## ⭐⭐⭐ Level 3 --- Refactoring to a Layered Architecture
+## ⭐⭐⭐ Level 3 -- Refactoring to a Layered Architecture
 
 After completing the basic API and in-memory data management, I
 refactored the application to follow a **clean layered architecture**,
