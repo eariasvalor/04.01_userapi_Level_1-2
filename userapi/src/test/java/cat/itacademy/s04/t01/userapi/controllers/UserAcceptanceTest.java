@@ -1,27 +1,27 @@
 package cat.itacademy.s04.t01.userapi.controllers;
 
 import cat.itacademy.s04.t01.userapi.entities.User;
+import cat.itacademy.s04.t01.userapi.repository.InMemoryUserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.MediaType;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
+import org.springframework.http.MediaType;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 
-
-@WebMvcTest(UserController.class)
-class UserControllerTest {
+@SpringBootTest
+@AutoConfigureMockMvc
+class UserAcceptanceTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -29,11 +29,11 @@ class UserControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private UserController userController;
+    private InMemoryUserRepository userRepository;
 
     @BeforeEach
     void setUp() {
-        userController.getUsers().clear();
+        userRepository.findAll().clear();
     }
 
 
@@ -50,9 +50,9 @@ class UserControllerTest {
         User user = new User(null, "Ada Lovelace", "ada@example.com");
 
         mockMvc.perform(post("/users")
-                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.name").value("Ada Lovelace"))
                 .andExpect(jsonPath("$.email").value("ada@example.com"));
@@ -64,14 +64,18 @@ class UserControllerTest {
         User user = new User(null, "Ada Lovelace", "ada@example.com");
 
         MvcResult result = mockMvc.perform(post("/users")
-                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         String responseBody = result.getResponse().getContentAsString();
         User createdUser = objectMapper.readValue(responseBody, User.class);
         UUID id = createdUser.getId();
+
+        System.out.println("Created user ID: " + id);
+        System.out.println("Users in repository: " + userRepository.findAll().size());
+        System.out.println("Looking for user: " + userRepository.findById(id));
 
         mockMvc.perform(get("/users/{id}", id))
                 .andExpect(status().isOk())
@@ -94,13 +98,13 @@ class UserControllerTest {
         User user2 = new User(null, "María", "mawi@gmail.com");
 
         mockMvc.perform(post("/users")
-                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user1)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
         mockMvc.perform(post("/users")
-                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user2)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         mockMvc.perform(get("/users").param("name", "jo"))
                 .andExpect(status().isOk())
